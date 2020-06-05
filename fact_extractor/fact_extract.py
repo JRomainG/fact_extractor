@@ -19,7 +19,7 @@
 
 import sys
 
-from helperFunctions.program_setup import setup_argparser, setup_logging, load_config
+from helperFunctions.program_setup import setup_argparser, setup_logging, load_config, merge_options
 from unpacker.unpack import unpack
 
 
@@ -28,6 +28,7 @@ def main():
     config = load_config(arguments.config_file)
     setup_logging(arguments.debug, log_file=arguments.log_file, log_level=arguments.log_level)
 
+    config = merge_options(arguments, config)
     unpack(arguments.FILE_PATH, config)
 
     return 0

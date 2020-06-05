@@ -4,7 +4,7 @@ import logging
 
 from common_helper_files import create_dir_for_file
 
-from helperFunctions.config import get_config_dir
+from helperFunctions.config import get_config_dir, read_list_from_config
 from version import __VERSION__
 
 
@@ -16,6 +16,7 @@ def setup_argparser(name, description, command_line_options, version=__VERSION__
     parser.add_argument('-d', '--debug', action='store_true', default=False, help='print debug messages')
     parser.add_argument('-C', '--config_file', help='set path to config File', default='{}/main.cfg'.format(get_config_dir()))
     parser.add_argument('FILE_PATH', type=str, help='Path to file that should be extracted')
+    parser.add_argument('--exclude', metavar='GLOB_PATTERN', action='append', default=[], help='Exclude files paths that match %(metavar)s.')
     return parser.parse_args(command_line_options[1:])
 
 
@@ -41,4 +42,10 @@ def setup_logging(debug, log_file=None, log_level=None):
 def load_config(config_file):
     config = configparser.ConfigParser()
     config.read(config_file)
+    return config
+
+def merge_options(arguments, config):
+    # Merge exclude list from config and CLI arguments
+    exclude = read_list_from_config(config, 'unpack', 'exclude')
+    config['unpack']['exclude'] = ", ".join(exclude + arguments.exclude)
     return config

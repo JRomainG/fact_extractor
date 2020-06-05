@@ -3,6 +3,7 @@ from os import getgid, getuid
 from subprocess import PIPE, Popen
 from time import time
 from typing import Callable, Dict, List, Tuple
+import fnmatch
 
 from common_helper_files import get_files_in_dir
 from fact_helper_file import get_file_type_from_path
@@ -15,8 +16,9 @@ class UnpackBase(object):
     The unpacker module unpacks all files included in a file
     '''
 
-    def __init__(self, config=None):
+    def __init__(self, config=None, exclude=[]):
         self.config = config
+        self.exclude = []
         self._setup_plugins()
 
     def _setup_plugins(self):
@@ -24,6 +26,12 @@ class UnpackBase(object):
         self.load_plugins()
         logging.info('Plug-ins available: {}'.format(self.source.list_plugins()))
         self._set_whitelist()
+
+    def should_ignore(self, file: str) -> bool:
+        for pattern in self.exclude:
+            if fnmatch.fnmatchcase(file, pattern):
+                return True
+        return False
 
     def load_plugins(self):
         self.source = import_plugins('unpacker.plugins', 'plugins/unpacking')
@@ -64,6 +72,11 @@ class UnpackBase(object):
             meta_data = {}
         meta_data['plugin_used'] = name
         meta_data['plugin_version'] = version
+
+        if self.should_ignore(file_path):
+            logging.debug('Ignore unpacking of {}'.format(file_path))
+            return [], meta_data
+
         logging.debug('Try to unpack {} with {} plugin...'.format(file_path, name))
 
         try:
@@ -77,7 +90,9 @@ class UnpackBase(object):
         self.change_owner_back_to_me(directory=tmp_dir)
         meta_data['analysis_date'] = time()
 
-        return get_files_in_dir(tmp_dir), meta_data
+        out = get_files_in_dir(tmp_dir)
+        out = filter(lambda x: not self.should_ignore(x), out)
+        return out, meta_data
 
     def change_owner_back_to_me(self, directory: str = None, permissions: str = 'u+r'):
         with Popen('sudo chown -R {}:{} {}'.format(getuid(), getgid(), directory), shell=True, stdout=PIPE, stderr=PIPE) as pl:

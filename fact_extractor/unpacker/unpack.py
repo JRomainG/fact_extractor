@@ -9,6 +9,7 @@ from typing import List, Dict, Tuple
 from helperFunctions.dataConversion import ReportEncoder
 from helperFunctions.file_system import file_is_empty
 from helperFunctions.statistics import get_unpack_status, add_unpack_statistics
+from helperFunctions.config import read_list_from_config
 from unpacker.unpackBase import UnpackBase
 
 
@@ -22,7 +23,9 @@ class Unpacker(UnpackBase):
         self._file_folder = Path(self.config.get('unpack', 'data_folder'), 'files')
         self._report_folder = Path(self.config.get('unpack', 'data_folder'), 'reports')
 
-    def unpack(self, file_path):
+    def unpack(self, file_path: str, exclude: List[str]):
+        self.exclude = exclude
+
         binary = Path(file_path).read_bytes()
 
         logging.debug('Extracting {}'.format(Path(file_path).name))
@@ -76,6 +79,7 @@ class Unpacker(UnpackBase):
 
 
 def unpack(file_path, config):
-    extracted_objects = Unpacker(config).unpack(file_path)
+    exclude = read_list_from_config(config, 'unpack', 'exclude')
+    extracted_objects = Unpacker(config).unpack(file_path, exclude)
     logging.info('{} files extracted'.format(len(extracted_objects)))
     logging.debug('Extracted files:\n{}'.format('\n'.join((str(path) for path in extracted_objects))))
