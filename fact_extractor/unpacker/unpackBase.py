@@ -91,7 +91,10 @@ class UnpackBase(object):
         meta_data['analysis_date'] = time()
 
         out = get_files_in_dir(tmp_dir)
-        out = filter(lambda x: not self.should_ignore(x), out)
+
+        # Save a call to filter if exclude is empty
+        if self.exclude:
+            out = filter(lambda x: not self.should_ignore(x), out)
         return out, meta_data
 
     def change_owner_back_to_me(self, directory: str = None, permissions: str = 'u+r'):
