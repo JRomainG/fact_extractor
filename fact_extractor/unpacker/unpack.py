@@ -23,7 +23,7 @@ class Unpacker(UnpackBase):
         self._file_folder = Path(self.config.get('unpack', 'data_folder'), 'files')
         self._report_folder = Path(self.config.get('unpack', 'data_folder'), 'reports')
 
-    def unpack(self, file_path: str, exclude: List[str]):
+    def unpack(self, file_path: str, exclude: List[str] = []):
         self.exclude = exclude
 
         binary = Path(file_path).read_bytes()
