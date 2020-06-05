@@ -34,11 +34,14 @@ class Unpacker(UnpackBase):
 
         extracted_files = self.move_extracted_files(extracted_files, Path(tmp_dir.name))
 
-        add_unpack_statistics(self._file_folder, meta_data)
-        get_unpack_status(file_path, binary, extracted_files, meta_data, self.config)
+        compute_stats = self.config.getboolean('ExpertSettings', 'statistics', fallback=True)
+        if compute_stats:
+            add_unpack_statistics(self._file_folder, meta_data)
+            get_unpack_status(file_path, binary, extracted_files, meta_data, self.config)
 
         self.cleanup(tmp_dir)
 
+        os.makedirs(str(self._report_folder), exist_ok=True)
         Path(self._report_folder, 'meta.json').write_text(json.dumps(meta_data, cls=ReportEncoder, indent=4))
 
         return extracted_files
