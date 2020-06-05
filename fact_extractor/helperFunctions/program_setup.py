@@ -47,6 +47,7 @@ def load_config(config_file):
     config.read(config_file)
     return config
 
+
 def merge_options(arguments, config):
     # Merge exclude lists from config and CLI arguments
     exclude = read_list_from_config(config, 'unpack', 'exclude')
