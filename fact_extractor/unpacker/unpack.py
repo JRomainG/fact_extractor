@@ -19,7 +19,16 @@ class Unpacker(UnpackBase):
     CARVER_FALLBACK_BLACKLIST = ['generic_carver', 'NOP', 'PaTool', 'SFX']
 
     def __init__(self, config=None):
-        super().__init__(config=config)
+        super().__init__()
+        self.config = config
+
+    @property
+    def config(self):
+        return self._config
+
+    @config.setter
+    def config(self, config):
+        self._config = config
         self._file_folder = Path(self.config.get('unpack', 'data_folder'), 'files')
         self._report_folder = Path(self.config.get('unpack', 'data_folder'), 'reports')
 

@@ -20,9 +20,13 @@ class UnpackBase(object):
         if config is None:
             config = default_config()
 
-        self.config = config
+        self._config = config
         self.exclude = []
         self._setup_plugins()
+
+    @property
+    def config(self):
+        return self._config
 
     def _setup_plugins(self):
         self.unpacker_plugins = {}
