@@ -4,6 +4,10 @@ from configparser import ConfigParser, NoOptionError, NoSectionError
 from helperFunctions.file_system import get_src_dir
 
 
+def default_config():
+    return load_config('main.cfg')
+
+
 def load_config(config_file_name):
     '''
     loads config of CONFIG_DIR/config_file_name

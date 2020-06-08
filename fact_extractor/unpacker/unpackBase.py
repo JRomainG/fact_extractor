@@ -7,7 +7,7 @@ import fnmatch
 
 from common_helper_files import get_files_in_dir
 from fact_helper_file import get_file_type_from_path
-from helperFunctions.config import read_list_from_config
+from helperFunctions.config import read_list_from_config, default_config
 from helperFunctions.plugin import import_plugins
 
 
@@ -17,6 +17,9 @@ class UnpackBase(object):
     '''
 
     def __init__(self, config=None, exclude=[]):
+        if config is None:
+            config = default_config()
+
         self.config = config
         self.exclude = []
         self._setup_plugins()
