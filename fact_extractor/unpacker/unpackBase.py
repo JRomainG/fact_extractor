@@ -20,23 +20,26 @@ class UnpackBase(object):
         if config is None:
             config = default_config()
 
-        self._config = config
-        self.exclude = []
         self._setup_plugins()
+        self.config = config
+        self.exclude = exclude
 
     @property
     def config(self):
         return self._config
 
+    @config.setter
+    def config(self, config):
+        self._config = config
+
     def _setup_plugins(self):
         self.unpacker_plugins = {}
         self.load_plugins()
         logging.info('Plug-ins available: {}'.format(self.source.list_plugins()))
-        self._set_whitelist()
 
     def should_ignore(self, file: str) -> bool:
         for pattern in self.exclude:
-            if fnmatch.fnmatchcase(file, pattern):
+            if fnmatch.fnmatchcase(str(file), pattern):
                 return True
         return False
 
